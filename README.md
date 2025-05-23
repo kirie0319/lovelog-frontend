@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LoveLog - Couple's Private Messaging App 💕
 
-## Getting Started
+A beautiful and intimate social networking app designed exclusively for couples. LoveLog provides a private space where you and your partner can share messages, emojis, and create your own love story.
 
-First, run the development server:
+## ✨ Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 🔒 **Private & Exclusive**
+- **Single Chat Room**: Only one chat room allowed - just you and your partner
+- **Intimate Design**: Beautiful romantic UI with pink and purple gradients
+- **Private Space**: No external users, just your love story
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 💬 **Messaging Features**
+- **Real-time Messaging**: Send and receive messages instantly
+- **Emoji Support**: Rich emoji picker with romantic and couple-themed emojis
+- **Message Timestamps**: See when each message was sent
+- **Auto-scroll**: Messages automatically scroll to the latest
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 🎨 **Customization**
+- **Custom Names**: Set your name and your partner's name
+- **Relationship Timeline**: Track your relationship milestones
+- **Theme Options**: Choose from different color themes
+- **Love Stats**: See your message count and relationship duration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 📱 **Modern UI/UX**
+- **Mobile-First Design**: Optimized for mobile devices
+- **Responsive Layout**: Works on all screen sizes
+- **Smooth Animations**: Beautiful transitions and hover effects
+- **Intuitive Interface**: Easy to use for all ages
 
-## Learn More
+## 🚀 Getting Started
 
-To learn more about Next.js, take a look at the following resources:
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Installation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd lovelog-frontend
+   ```
 
-## Deploy on Vercel
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. **Open your browser**
+   Navigate to `http://localhost:3000`
+
+## 🛠️ Built With
+
+- **Next.js 15** - React framework for production
+- **React 19** - UI library
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Utility-first CSS framework
+- **Lucide React** - Beautiful icons
+- **date-fns** - Date formatting utilities
+
+## 📱 How to Use
+
+### First Time Setup
+1. Open the app in your browser
+2. Click the menu button (⋮) in the top right
+3. Select "Settings" to customize your names
+4. Start messaging with your partner!
+
+### Sending Messages
+1. Type your message in the input field at the bottom
+2. Press Enter or click the send button
+3. Add emojis by clicking the smile icon
+4. Your messages appear on the right (blue), partner's on the left (white)
+
+### Features to Try
+- **Emoji Picker**: Click the smile icon to add romantic emojis
+- **Settings**: Customize names and relationship details
+- **Simulate Partner**: Use the demo feature to see how partner messages look
+
+## 🎯 Perfect For
+
+- **New Couples**: Start documenting your love story from day one
+- **Long Distance**: Stay connected with your partner
+- **Anniversary Gifts**: Create a digital love diary
+- **Daily Communication**: Replace generic messaging apps with something special
+
+## 🔮 Future Features
+
+- **Photo Sharing**: Send and receive images
+- **Voice Messages**: Record voice notes for your partner
+- **Love Letters**: Special formatted messages for special occasions
+- **Memory Timeline**: Browse your message history by date
+- **Backup & Export**: Save your conversations
+- **Push Notifications**: Get notified of new messages
+
+## 🤝 Contributing
+
+This is a personal project for couples, but suggestions and improvements are welcome!
+
+## 📄 License
+
+This project is private and intended for personal use.
+
+---
+
+**Made with ❤️ for couples everywhere**
+
+*Start your digital love story today with LoveLog!*
