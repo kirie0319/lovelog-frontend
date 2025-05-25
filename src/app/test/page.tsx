@@ -12,8 +12,14 @@ import { sendMessage, getConversation } from '@/services/messages';
 export default function TestPage() {
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [messageContent, setMessageContent] = useState('');
-  const [conversations, setConversations] = useState<any[]>([]);
-  const [partnerStatus, setPartnerStatus] = useState<any>(null);
+  const [conversations, setConversations] = useState<Array<{ 
+    message_id: number; 
+    content: string; 
+    sender_id: number; 
+    created_at: string;
+    sender: { display_name: string };
+  }>>([]);
+  const [partnerStatus, setPartnerStatus] = useState<{ has_partner: boolean; partner?: { display_name: string } } | null>(null);
   const { user, logout, updateUser } = useAuth();
 
   const handleRemovePartner = async () => {
@@ -48,15 +54,15 @@ export default function TestPage() {
 
     try {
       await sendMessage({
-        receiver_id: user.partner_id,
         content: messageContent,
         message_type: 'text'
       });
       alert('メッセージが送信されました');
       setMessageContent('');
       loadConversation();
-    } catch (error: any) {
-      alert(error.response?.data?.detail || 'エラーが発生しました');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'エラーが発生しました';
+      alert(errorMessage);
     }
   };
 
@@ -64,8 +70,9 @@ export default function TestPage() {
     try {
       const response = await getConversation();
       setConversations(response.messages);
-    } catch (error: any) {
-      alert(error.response?.data?.detail || 'エラーが発生しました');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'エラーが発生しました';
+      alert(errorMessage);
     }
   };
 
@@ -73,7 +80,7 @@ export default function TestPage() {
     try {
       const status = await getPartnerStatus();
       setPartnerStatus(status);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load partner status:', error);
     }
   };

@@ -34,10 +34,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToSignu
 
     try {
       const response = await loginUser(formData);
-      login(response.user);
+      login(response.tokenResponse.user);
       onSuccess?.();
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'ログインに失敗しました');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'ログインに失敗しました';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

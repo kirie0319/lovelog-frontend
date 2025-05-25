@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Heart, ArrowLeft, User, Mail, Lock, UserPlus } from 'lucide-react';
+import { ArrowLeft, User, Mail, Lock, UserPlus } from 'lucide-react';
 import { registerUser } from '@/services/auth';
 import { UserCreate } from '@/types/api';
+import { SessionInfo, saveSessionInfo, setSessionToken } from '@/lib/session';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -26,11 +27,22 @@ export default function RegisterPage() {
     try {
       const { tokenResponse, sessionId } = await registerUser(formData);
       
-      // セッション識別子を含むURLにリダイレクト
+      // セッション情報を保存
+      const sessionInfo: SessionInfo = {
+        sessionId,
+        userId: tokenResponse.user.user_id.toString(),
+        username: tokenResponse.user.username,
+        createdAt: new Date()
+      };
+      
+      saveSessionInfo(sessionInfo);
+      setSessionToken(sessionId, tokenResponse.access_token);
+      
+      // チャットページにリダイレクト
       router.push(`/session/${sessionId}`);
-    } catch (error: any) {
-      console.error('Registration failed:', error);
-      setError(error.response?.data?.detail || '登録に失敗しました');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : '登録に失敗しました';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

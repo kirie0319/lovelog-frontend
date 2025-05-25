@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Heart, ArrowLeft, User, Lock } from 'lucide-react';
 import { loginUser } from '@/services/auth';
 import { UserLogin } from '@/types/api';
+import { SessionInfo, saveSessionInfo, setSessionToken } from '@/lib/session';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,11 +24,22 @@ export default function LoginPage() {
     try {
       const { tokenResponse, sessionId } = await loginUser(formData);
       
-      // セッション識別子を含むURLにリダイレクト
+      // セッション情報を保存
+      const sessionInfo: SessionInfo = {
+        sessionId,
+        userId: tokenResponse.user.user_id.toString(),
+        username: tokenResponse.user.username,
+        createdAt: new Date()
+      };
+      
+      saveSessionInfo(sessionInfo);
+      setSessionToken(sessionId, tokenResponse.access_token);
+      
+      // チャットページにリダイレクト
       router.push(`/session/${sessionId}`);
-    } catch (error: any) {
-      console.error('Login failed:', error);
-      setError(error.response?.data?.detail || 'ログインに失敗しました');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'ログインに失敗しました';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

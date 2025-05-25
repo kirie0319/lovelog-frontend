@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { X, Sparkles, Calendar, MapPin, Heart, Clock, DollarSign, Shuffle } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Sparkles, MapPin, Heart, Shuffle, Clock, DollarSign } from 'lucide-react';
 
 interface AIPlanMakerProps {
   isOpen: boolean;
@@ -34,7 +34,7 @@ const planSuggestions: Plan[] = [
   {
     id: '2',
     title: 'Home Cooking Challenge',
-    description: 'Pick a cuisine you\'ve never tried before and cook it together. Make it fun with a blindfolded taste test!',
+    description: 'Pick a cuisine you&apos;ve never tried before and cook it together. Make it fun with a blindfolded taste test!',
     duration: '2-4 hours',
     budget: '$30-50',
     location: 'Home',
@@ -84,7 +84,7 @@ const planSuggestions: Plan[] = [
   {
     id: '7',
     title: 'Dance Class Date',
-    description: 'Take a beginner\'s dance class together - salsa, swing, or ballroom. Laugh at your mistakes and celebrate small wins!',
+    description: 'Take a beginner&apos;s dance class together - salsa, swing, or ballroom. Laugh at your mistakes and celebrate small wins!',
     duration: '1-2 hours',
     budget: '$50-80',
     location: 'Dance Studio',
@@ -241,7 +241,7 @@ export default function AIPlanMaker({ isOpen, onClose, onPlanSelect }: AIPlanMak
               <h3 className="text-lg font-semibold text-gray-800 mb-2">AI-Powered Date Planning</h3>
               <p className="text-gray-600 mb-4">Let AI help you create magical moments together! Choose a vibe and get personalized plan suggestions.</p>
               <div className="text-sm text-gray-500">
-                Click "Generate AI Plan" to get started ✨
+                Click &quot;Generate AI Plan&quot; to get started ✨
               </div>
             </div>
           )}

@@ -39,8 +39,9 @@ export const InviteCodeManager: React.FC = () => {
       const response = await regenerateInviteCode();
       setInviteCode(response.invite_code);
       alert('招待コードが再生成されました');
-    } catch (error: any) {
-      alert(error.response?.data?.detail || '招待コードの再生成に失敗しました');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : '招待コードの再生成に失敗しました';
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }

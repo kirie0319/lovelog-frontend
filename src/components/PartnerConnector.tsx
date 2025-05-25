@@ -23,8 +23,9 @@ export const PartnerConnector: React.FC = () => {
     try {
       const result = await searchUserByInviteCode(inviteCode.trim());
       setSearchResult(result);
-    } catch (error: any) {
-      alert(error.response?.data?.detail || 'ユーザーが見つかりませんでした');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'ユーザーが見つかりませんでした';
+      alert(errorMessage);
       setSearchResult(null);
     } finally {
       setLoading(false);
@@ -39,7 +40,7 @@ export const PartnerConnector: React.FC = () => {
     setConnecting(true);
     try {
       const response = await connectPartnerByInviteCode(inviteCode);
-      alert(response.message);
+      alert('パートナーと接続されました！');
       
       // ユーザー情報を更新
       if (user) {
@@ -54,8 +55,9 @@ export const PartnerConnector: React.FC = () => {
       
       setSearchResult(null);
       setInviteCode('');
-    } catch (error: any) {
-      alert(error.response?.data?.detail || 'パートナー接続に失敗しました');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'パートナー接続に失敗しました';
+      alert(errorMessage);
     } finally {
       setConnecting(false);
     }

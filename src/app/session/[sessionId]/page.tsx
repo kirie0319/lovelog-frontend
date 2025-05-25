@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Heart, Send, Smile, Image as ImageIcon, MoreVertical, Settings as SettingsIcon, Sparkles, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { clsx } from 'clsx';
 import { useAuth } from '@/contexts/AuthContext';
-import { sendMessage, getConversation, Message as ApiMessage } from '@/services/messages';
+import { sendMessage, getConversation } from '@/services/messages';
 import Settings from '@/components/Settings';
 import EmojiPicker from '@/components/EmojiPicker';
 import AIPlanMaker from '@/components/AIPlanMaker';
@@ -45,7 +45,7 @@ export default function SessionChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // メッセージを読み込む
-  const loadMessages = async () => {
+  const loadMessages = useCallback(async () => {
     if (!user?.has_partner) return;
     
     try {
@@ -67,7 +67,7 @@ export default function SessionChatPage() {
     } finally {
       setMessagesLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     if (user?.has_partner) {
@@ -77,7 +77,7 @@ export default function SessionChatPage() {
       const interval = setInterval(loadMessages, 3000);
       return () => clearInterval(interval);
     }
-  }, [user?.has_partner]);
+  }, [user?.has_partner, loadMessages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -155,7 +155,6 @@ export default function SessionChatPage() {
   }
 
   const partnerName = user.partner?.display_name || 'パートナー';
-  const myName = user.display_name || 'Me';
 
   // ユニークIDを生成（バックエンドのUUID形式を使用）
   const generateUniqueId = () => {
@@ -317,10 +316,10 @@ export default function SessionChatPage() {
         {showSettings && (
           <Settings
             isOpen={showSettings}
-            myName={myName}
-            partnerName={partnerName}
+            myName={user?.display_name || 'Me'}
+            partnerName={user?.partner?.display_name || 'パートナー'}
             onClose={() => setShowSettings(false)}
-            onUpdateNames={(myName: string, partnerName: string) => {
+            onUpdateNames={() => {
               // TODO: ユーザー情報の更新処理
               setShowSettings(false);
             }}

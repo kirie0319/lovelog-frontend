@@ -37,10 +37,11 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLog
 
     try {
       const response = await registerUser(formData);
-      login(response.user);
+      login(response.tokenResponse.user);
       onSuccess?.();
-    } catch (err: any) {
-      setError(err.response?.data?.detail || '登録に失敗しました');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : '登録に失敗しました';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

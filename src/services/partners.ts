@@ -1,10 +1,7 @@
 import api from '@/lib/api';
 import { 
-  PartnerRequest, 
   InviteCodeResponse, 
   PartnerSearchResponse, 
-  PartnerConnectByCode, 
-  PartnerConnectById, 
   PartnerConnectResponse,
   PartnerStatusResponse 
 } from '@/types/api';

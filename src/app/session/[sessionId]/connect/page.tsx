@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Heart, ArrowLeft, UserPlus, Check, Shuffle } from 'lucide-react';
+import { Heart, ArrowLeft, UserPlus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { searchUserByInviteCode, connectPartnerByInviteCode } from '@/services/partners';
 import { PartnerSearchResponse } from '@/types/api';
@@ -66,8 +66,9 @@ export default function ConnectPage() {
       } else {
         alert('このユーザーは既に他のパートナーと接続されています');
       }
-    } catch (error: any) {
-      alert(error.response?.data?.detail || 'ユーザーが見つかりませんでした');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'ユーザーが見つかりませんでした';
+      alert(errorMessage);
       setSearchResult(null);
     } finally {
       setLoading(false);
@@ -92,8 +93,9 @@ export default function ConnectPage() {
       }
       
       setStep('completed');
-    } catch (error: any) {
-      alert(error.response?.data?.detail || 'パートナー接続に失敗しました');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'パートナー接続に失敗しました';
+      alert(errorMessage);
     }
   };
 

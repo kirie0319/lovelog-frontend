@@ -47,12 +47,13 @@ export const sendMessage = async (messageData: MessageCreate): Promise<Message> 
     const response = await api.post<Message>('/messages/', messageData);
     console.log('Message sent successfully:', response.data);
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const axiosError = error as { response?: { status?: number; statusText?: string; data?: unknown; headers?: unknown } };
     console.error('Send message error details:', {
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      headers: error.response?.headers
+      status: axiosError.response?.status,
+      statusText: axiosError.response?.statusText,
+      data: axiosError.response?.data,
+      headers: axiosError.response?.headers
     });
     throw error;
   }

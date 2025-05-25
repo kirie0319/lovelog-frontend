@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { X, Heart, User, Calendar, Palette } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, User, Calendar, Palette } from 'lucide-react';
 
 interface SettingsProps {
   isOpen: boolean;
@@ -69,6 +69,10 @@ export default function Settings({ isOpen, onClose, partnerName, myName, onUpdat
                 />
               </div>
             </div>
+
+            <p className="text-gray-600 mb-4">
+              お互いの表示名を設定して、より親しみやすいチャットにしましょう
+            </p>
           </div>
 
           {/* Relationship Start Date */}
