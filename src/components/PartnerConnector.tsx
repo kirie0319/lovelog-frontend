@@ -5,13 +5,14 @@ import Image from 'next/image';
 import { searchUserByInviteCode, connectPartnerByInviteCode } from '@/services/partners';
 import { useAuth } from '@/contexts/AuthContext';
 import { PartnerSearchResponse } from '@/types/api';
-import { Search, Heart, User } from 'lucide-react';
+import { Search, Heart, User, Copy } from 'lucide-react';
 
 export const PartnerConnector: React.FC = () => {
   const [inviteCode, setInviteCode] = useState('');
   const [searchResult, setSearchResult] = useState<PartnerSearchResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [connecting, setConnecting] = useState(false);
+  const [copied, setCopied] = useState(false);
   const { user, updateUser } = useAuth();
 
   const handleSearch = async () => {
@@ -64,6 +65,27 @@ export const PartnerConnector: React.FC = () => {
     }
   };
 
+  const handleCopyMyCode = async () => {
+    if (!user?.invite_code) return;
+    
+    try {
+      await navigator.clipboard.writeText(user.invite_code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      // フォールバック：古いブラウザ用
+      const textArea = document.createElement('textarea');
+      textArea.value = user.invite_code;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSearch();
@@ -93,6 +115,30 @@ export const PartnerConnector: React.FC = () => {
       </h3>
       
       <div className="space-y-4">
+        {/* あなたの招待コード */}
+        {user?.invite_code && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-sm font-medium text-blue-800">あなたの招待コード</h4>
+              <button
+                onClick={handleCopyMyCode}
+                className="flex items-center px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              >
+                <Copy className="w-3 h-3 mr-1" />
+                {copied ? 'コピー済み!' : 'コピー'}
+              </button>
+            </div>
+            <div className="font-mono text-sm text-blue-900 break-all">
+              {user.invite_code.length > 16 
+                ? `${user.invite_code.substring(0, 16)}...` 
+                : user.invite_code}
+            </div>
+            <p className="text-xs text-blue-600 mt-1">
+              このコードをパートナーに共有してください
+            </p>
+          </div>
+        )}
+
         <div>
           <label htmlFor="inviteCode" className="block text-sm font-medium text-gray-700 mb-2">
             パートナーの招待コード
