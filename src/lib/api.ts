@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getCurrentSessionId, getSessionToken, removeSessionToken } from './session';
 
 // APIのベースURL（環境変数で設定可能）
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://lovelog-backend-production.up.railway.app/';
 
 // Axiosインスタンスの作成
 const api = axios.create({
