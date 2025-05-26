@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Heart, ArrowLeft, UserPlus } from 'lucide-react';
+import { Heart, ArrowLeft, UserPlus, Copy } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { searchUserByInviteCode, connectPartnerByInviteCode } from '@/services/partners';
 import { PartnerSearchResponse } from '@/types/api';
@@ -28,6 +28,7 @@ export default function ConnectPage() {
   const [inviteCode, setInviteCode] = useState('');
   const [searchResult, setSearchResult] = useState<PartnerSearchResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
   
   // パズル関連の状態
   const [myPuzzlePieces, setMyPuzzlePieces] = useState<PuzzlePiece[]>([
@@ -152,6 +153,27 @@ export default function ConnectPage() {
     return 'UUID未取得';
   };
 
+  const handleCopyMyCode = async () => {
+    if (!user?.invite_code) return;
+    
+    try {
+      await navigator.clipboard.writeText(user.invite_code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      // フォールバック：古いブラウザ用
+      const textArea = document.createElement('textarea');
+      textArea.value = user.invite_code;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   // ID入力画面
   if (step === 'input') {
     return (
@@ -185,8 +207,22 @@ export default function ConnectPage() {
             </div>
             
             <div className="bg-pink-50 p-4 rounded-xl">
-              <p className="text-sm text-gray-600">
-                <strong>あなたのID:</strong> {generateUniqueId().substring(0, 8)}...<br/>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-gray-700">あなたのID:</p>
+                <button
+                  onClick={handleCopyMyCode}
+                  className="flex items-center px-2 py-1 text-xs bg-pink-500 text-white rounded hover:bg-pink-600 transition-colors"
+                >
+                  <Copy className="w-3 h-3 mr-1" />
+                  {copied ? 'コピー済み!' : 'コピー'}
+                </button>
+              </div>
+              <div className="font-mono text-sm text-gray-800 break-all mb-1">
+                {generateUniqueId().length > 16 
+                  ? `${generateUniqueId().substring(0, 16)}...` 
+                  : generateUniqueId()}
+              </div>
+              <p className="text-xs text-gray-600">
                 このIDをパートナーに共有してください
               </p>
             </div>
