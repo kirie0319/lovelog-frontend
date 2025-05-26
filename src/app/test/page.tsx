@@ -41,8 +41,9 @@ export default function TestPage() {
         };
         updateUser(updatedUser);
       }
-    } catch (error: any) {
-      alert(error.response?.data?.detail || 'エラーが発生しました');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'エラーが発生しました';
+      alert(errorMessage);
     }
   };
 

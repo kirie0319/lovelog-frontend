@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Heart, Send, Smile, Image as ImageIcon, MoreVertical, Settings as SettingsIcon, Sparkles, ArrowLeft } from 'lucide-react';
-import { format } from 'date-fns';
 import { clsx } from 'clsx';
 import { useAuth } from '@/contexts/AuthContext';
 import { sendMessage, getConversation } from '@/services/messages';

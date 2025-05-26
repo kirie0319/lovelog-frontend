@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { searchUserByInviteCode, connectPartnerByInviteCode } from '@/services/partners';
 import { useAuth } from '@/contexts/AuthContext';
 import { PartnerSearchResponse } from '@/types/api';
@@ -120,9 +121,11 @@ export const PartnerConnector: React.FC = () => {
           <div className="border border-gray-200 rounded-lg p-4">
             <div className="flex items-center space-x-3 mb-3">
               {searchResult.profile_image_url ? (
-                <img
+                <Image
                   src={searchResult.profile_image_url}
                   alt={searchResult.display_name}
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-full object-cover"
                 />
               ) : (

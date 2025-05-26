@@ -59,7 +59,7 @@ export default function Settings({ isOpen, onClose, partnerName, myName, onUpdat
               </div>
               
               <div>
-                <label className="block text-sm text-gray-600 mb-1">Partner's Name</label>
+                <label className="block text-sm text-gray-600 mb-1">Partner&apos;s Name</label>
                 <input
                   type="text"
                   value={tempPartnerName}
