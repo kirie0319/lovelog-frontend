@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Sparkles, MapPin, Heart, Clock, DollarSign, Loader2, AlertCircle, RefreshCw, Lightbulb } from 'lucide-react';
+import { X, Sparkles, Clock, DollarSign, Loader2, AlertCircle, RefreshCw, Lightbulb } from 'lucide-react';
 import { getAISuggestions, testAI, AISuggestionResponse } from '@/services/ai';
 
 interface AIPlanMakerProps {

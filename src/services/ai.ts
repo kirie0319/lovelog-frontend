@@ -1,5 +1,50 @@
 import api from '@/lib/api';
 
+// バックエンドから返される生データの型定義
+interface RawAIResponse {
+  success?: boolean;
+  message?: string;
+  error?: string;
+  analysis?: {
+    topics?: unknown;
+    locations?: unknown;
+    interests?: unknown;
+    plans?: unknown;
+    tone?: string;
+  };
+  intent?: {
+    type?: string;
+    budget?: string;
+    timeframe?: string;
+    location_constraints?: string;
+    special_requests?: string;
+  };
+  thinking?: {
+    search_keywords?: unknown;
+    focus_areas?: unknown;
+    tone?: string;
+    constraints?: unknown;
+  };
+  search_results?: Record<string, unknown>;
+  suggestions?: {
+    plans?: unknown;
+  };
+}
+
+// プランの生データ型定義
+interface RawPlan {
+  title?: string;
+  description?: string;
+  schedule?: string;
+  duration?: string;
+  budget?: string;
+  highlights?: unknown;
+  おすすめポイント?: unknown;
+  notes?: unknown;
+  注意事項?: unknown;
+  準備すべきこと?: unknown;
+}
+
 // AI提案のレスポンス型定義
 export interface AISuggestionResponse {
   success: boolean;
@@ -23,7 +68,7 @@ export interface AISuggestionResponse {
     tone?: string;
     constraints?: string[];
   };
-  search_results?: Record<string, any>;
+  search_results?: Record<string, unknown>;
   suggestions?: {
     plans?: Array<{
       title: string;
@@ -38,8 +83,19 @@ export interface AISuggestionResponse {
   error?: string;
 }
 
+// 配列に変換するヘルパー関数
+const toStringArray = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === 'string');
+  }
+  if (typeof value === 'string') {
+    return [value];
+  }
+  return [];
+};
+
 // データを正規化する関数
-const normalizeAIResponse = (data: any): AISuggestionResponse => {
+const normalizeAIResponse = (data: RawAIResponse): AISuggestionResponse => {
   // 基本的な構造を確保
   const normalized: AISuggestionResponse = {
     success: data.success || false,
@@ -50,10 +106,10 @@ const normalizeAIResponse = (data: any): AISuggestionResponse => {
   // analysisの正規化
   if (data.analysis) {
     normalized.analysis = {
-      topics: Array.isArray(data.analysis.topics) ? data.analysis.topics : [],
-      locations: Array.isArray(data.analysis.locations) ? data.analysis.locations : [],
-      interests: Array.isArray(data.analysis.interests) ? data.analysis.interests : [],
-      plans: Array.isArray(data.analysis.plans) ? data.analysis.plans : [],
+      topics: toStringArray(data.analysis.topics),
+      locations: toStringArray(data.analysis.locations),
+      interests: toStringArray(data.analysis.interests),
+      plans: toStringArray(data.analysis.plans),
       tone: data.analysis.tone || ''
     };
   }
@@ -72,10 +128,10 @@ const normalizeAIResponse = (data: any): AISuggestionResponse => {
   // thinkingの正規化
   if (data.thinking) {
     normalized.thinking = {
-      search_keywords: Array.isArray(data.thinking.search_keywords) ? data.thinking.search_keywords : [],
-      focus_areas: Array.isArray(data.thinking.focus_areas) ? data.thinking.focus_areas : [],
+      search_keywords: toStringArray(data.thinking.search_keywords),
+      focus_areas: toStringArray(data.thinking.focus_areas),
       tone: data.thinking.tone || '',
-      constraints: Array.isArray(data.thinking.constraints) ? data.thinking.constraints : []
+      constraints: toStringArray(data.thinking.constraints)
     };
   }
 
@@ -86,21 +142,19 @@ const normalizeAIResponse = (data: any): AISuggestionResponse => {
 
   // suggestionsの正規化（最も重要）
   if (data.suggestions && data.suggestions.plans) {
-    const plans = Array.isArray(data.suggestions.plans) ? data.suggestions.plans : [];
+    const rawPlans = Array.isArray(data.suggestions.plans) ? data.suggestions.plans : [];
     normalized.suggestions = {
-      plans: plans.map((plan: any) => ({
-        title: plan.title || 'タイトルなし',
-        description: plan.description || '説明がありません',
-        schedule: plan.schedule || plan.duration || '',
-        budget: plan.budget || '',
-        highlights: Array.isArray(plan.highlights) ? plan.highlights : 
-                   Array.isArray(plan.おすすめポイント) ? plan.おすすめポイント :
-                   typeof plan.highlights === 'string' ? [plan.highlights] : [],
-        notes: Array.isArray(plan.notes) ? plan.notes :
-               Array.isArray(plan.注意事項) ? plan.注意事項 :
-               Array.isArray(plan.準備すべきこと) ? plan.準備すべきこと :
-               typeof plan.notes === 'string' ? [plan.notes] : []
-      }))
+      plans: rawPlans.map((plan: unknown) => {
+        const rawPlan = plan as RawPlan;
+        return {
+          title: rawPlan.title || 'タイトルなし',
+          description: rawPlan.description || '説明がありません',
+          schedule: rawPlan.schedule || rawPlan.duration || '',
+          budget: rawPlan.budget || '',
+          highlights: toStringArray(rawPlan.highlights || rawPlan.おすすめポイント),
+          notes: toStringArray(rawPlan.notes || rawPlan.注意事項 || rawPlan.準備すべきこと)
+        };
+      })
     };
   }
 
@@ -111,7 +165,7 @@ const normalizeAIResponse = (data: any): AISuggestionResponse => {
 export const getAISuggestions = async (): Promise<AISuggestionResponse> => {
   try {
     console.log('Requesting AI suggestions...');
-    const response = await api.post<any>('/ai/suggest-plans');
+    const response = await api.post<RawAIResponse>('/ai/suggest-plans');
     console.log('AI suggestions received:', response.data);
     
     // データを正規化
@@ -119,13 +173,16 @@ export const getAISuggestions = async (): Promise<AISuggestionResponse> => {
     console.log('Normalized AI data:', normalizedData);
     
     return normalizedData;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('AI suggestions error:', error);
+    
+    const errorMessage = error instanceof Error ? error.message : 'AI処理中にエラーが発生しました';
+    const errorDetail = (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
     
     // エラーレスポンスを統一形式で返す
     return {
       success: false,
-      error: error.response?.data?.detail || error.message || 'AI処理中にエラーが発生しました',
+      error: errorDetail || errorMessage,
       message: 'AI処理中にエラーが発生しました。しばらく時間をおいて再度お試しください。'
     };
   }
@@ -135,7 +192,7 @@ export const getAISuggestions = async (): Promise<AISuggestionResponse> => {
 export const testAI = async (): Promise<AISuggestionResponse> => {
   try {
     console.log('Testing AI functionality...');
-    const response = await api.post<any>('/ai/test');
+    const response = await api.post<RawAIResponse>('/ai/test');
     console.log('AI test response:', response.data);
     
     // データを正規化
@@ -143,12 +200,15 @@ export const testAI = async (): Promise<AISuggestionResponse> => {
     console.log('Normalized AI test data:', normalizedData);
     
     return normalizedData;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('AI test error:', error);
+    
+    const errorMessage = error instanceof Error ? error.message : 'AIテスト中にエラーが発生しました';
+    const errorDetail = (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
     
     return {
       success: false,
-      error: error.response?.data?.detail || error.message || 'AIテスト中にエラーが発生しました',
+      error: errorDetail || errorMessage,
       message: 'AIテスト中にエラーが発生しました。'
     };
   }
