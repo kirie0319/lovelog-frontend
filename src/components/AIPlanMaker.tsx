@@ -19,6 +19,24 @@ interface AIPlan {
   notes?: string[];
 }
 
+// 安全な文字列変換関数
+const safeToString = (value: unknown): string => {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (typeof value === 'object' && value !== null) {
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return '[Object]';
+    }
+  }
+  if (value === null || value === undefined) {
+    return '';
+  }
+  return String(value);
+};
+
 export default function AIPlanMaker({ isOpen, onClose, onPlanSelect }: AIPlanMakerProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,22 +100,22 @@ export default function AIPlanMaker({ isOpen, onClose, onPlanSelect }: AIPlanMak
 
   const handleSendPlan = () => {
     if (selectedPlan) {
-      let planMessage = `🤖 AI提案: ${selectedPlan.title}\n\n${selectedPlan.description}`;
+      let planMessage = `🤖 AI提案: ${safeToString(selectedPlan.title)}\n\n${safeToString(selectedPlan.description)}`;
       
       if (selectedPlan.schedule) {
-        planMessage += `\n\n⏰ スケジュール: ${selectedPlan.schedule}`;
+        planMessage += `\n\n⏰ スケジュール: ${safeToString(selectedPlan.schedule)}`;
       }
       
       if (selectedPlan.budget) {
-        planMessage += `\n💰 予算: ${selectedPlan.budget}`;
+        planMessage += `\n💰 予算: ${safeToString(selectedPlan.budget)}`;
       }
       
       if (selectedPlan.highlights && Array.isArray(selectedPlan.highlights) && selectedPlan.highlights.length > 0) {
-        planMessage += `\n\n✨ おすすめポイント:\n${selectedPlan.highlights.map(h => `• ${h}`).join('\n')}`;
+        planMessage += `\n\n✨ おすすめポイント:\n${selectedPlan.highlights.map(h => `• ${safeToString(h)}`).join('\n')}`;
       }
       
       if (selectedPlan.notes && Array.isArray(selectedPlan.notes) && selectedPlan.notes.length > 0) {
-        planMessage += `\n\n📝 注意事項:\n${selectedPlan.notes.map(n => `• ${n}`).join('\n')}`;
+        planMessage += `\n\n📝 注意事項:\n${selectedPlan.notes.map(n => `• ${safeToString(n)}`).join('\n')}`;
       }
       
       planMessage += '\n\nどう思う？ 💕';
@@ -231,7 +249,36 @@ export default function AIPlanMaker({ isOpen, onClose, onPlanSelect }: AIPlanMak
                 <span>デバッグ情報</span>
               </h3>
               
+              {/* エラー情報の表示 */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded p-3 mb-3">
+                  <h4 className="text-red-800 font-medium text-sm mb-2">エラー詳細</h4>
+                  <div className="text-xs text-red-700 space-y-1">
+                    <p><strong>エラーメッセージ:</strong> {error}</p>
+                    {aiResponse.debug && (
+                      <>
+                        <p><strong>エラータイプ:</strong> {aiResponse.debug.errorType}</p>
+                        {aiResponse.debug.httpStatus && (
+                          <p><strong>HTTPステータス:</strong> {aiResponse.debug.httpStatus}</p>
+                        )}
+                        <p><strong>発生時刻:</strong> {aiResponse.debug.timestamp}</p>
+                        {aiResponse.debug.responseData && (
+                          <div className="mt-2">
+                            <p><strong>レスポンスデータ:</strong></p>
+                            <pre className="bg-white p-2 rounded border text-xs overflow-auto max-h-20">
+                              {aiResponse.debug.responseData}
+                            </pre>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {/* 通常のレスポンス情報 */}
               <div className="text-xs text-gray-600 bg-white p-3 rounded border overflow-auto max-h-40">
+                <h4 className="font-medium mb-2">完全なレスポンス:</h4>
                 <pre>{JSON.stringify(aiResponse, null, 2)}</pre>
               </div>
               
@@ -243,6 +290,16 @@ export default function AIPlanMaker({ isOpen, onClose, onPlanSelect }: AIPlanMak
                   </div>
                 </div>
               )}
+              
+              {/* API情報 */}
+              <div className="bg-blue-50 border border-blue-200 rounded p-3">
+                <h4 className="text-blue-800 font-medium text-sm mb-2">API情報</h4>
+                <div className="text-xs text-blue-700 space-y-1">
+                  <p><strong>API Base URL:</strong> {process.env.NEXT_PUBLIC_API_URL || '未設定'}</p>
+                  <p><strong>Success:</strong> {aiResponse.success ? 'Yes' : 'No'}</p>
+                  <p><strong>Message:</strong> {aiResponse.message}</p>
+                </div>
+              </div>
             </div>
           )}
 
@@ -276,38 +333,70 @@ export default function AIPlanMaker({ isOpen, onClose, onPlanSelect }: AIPlanMak
                   <div className="flex items-center space-x-3 mb-4">
                     <div className="text-3xl">✨</div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-800">{selectedPlan.title}</h3>
+                      <h3 className="text-lg font-semibold text-gray-800">{safeToString(selectedPlan.title)}</h3>
                       <span className="text-sm text-purple-600 font-medium">AI生成プラン</span>
                     </div>
                   </div>
                   
-                  <p className="text-gray-700 mb-4 leading-relaxed">{selectedPlan.description}</p>
+                  <p className="text-gray-700 mb-4 leading-relaxed whitespace-pre-line">{safeToString(selectedPlan.description)}</p>
                   
-                  {(selectedPlan.schedule || selectedPlan.budget) && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                      {selectedPlan.schedule && (
-                        <div className="flex items-center space-x-2 text-sm text-gray-600">
-                          <Clock className="w-4 h-4 text-purple-500" />
-                          <span>{selectedPlan.schedule}</span>
-                        </div>
-                      )}
-                      {selectedPlan.budget && (
-                        <div className="flex items-center space-x-2 text-sm text-gray-600">
-                          <DollarSign className="w-4 h-4 text-purple-500" />
-                          <span>{selectedPlan.budget}</span>
-                        </div>
-                      )}
+                  {selectedPlan.schedule && (
+                    <div className="mb-4 p-3 bg-purple-50 rounded-lg border border-purple-100">
+                      <h4 className="text-sm font-medium text-gray-800 mb-2 flex items-center">
+                        <Clock className="w-4 h-4 text-purple-500 mr-2" />
+                        スケジュール
+                      </h4>
+                      <div className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
+                        {safeToString(selectedPlan.schedule)}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {selectedPlan.budget && (
+                    <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-100">
+                      <h4 className="text-sm font-medium text-gray-800 mb-2 flex items-center">
+                        <DollarSign className="w-4 h-4 text-green-500 mr-2" />
+                        予算
+                      </h4>
+                      <div className="text-sm text-gray-700">
+                        {safeToString(selectedPlan.budget)}
+                      </div>
                     </div>
                   )}
 
                   {selectedPlan.highlights && Array.isArray(selectedPlan.highlights) && selectedPlan.highlights.length > 0 && (
-                    <div className="mb-4">
-                      <h4 className="text-sm font-medium text-gray-800 mb-2">✨ おすすめポイント</h4>
-                      <ul className="text-sm text-gray-700 space-y-1">
+                    <div className="mb-4 p-3 bg-yellow-50 rounded-lg border border-yellow-100">
+                      <h4 className="text-sm font-medium text-gray-800 mb-2 flex items-center">
+                        <span className="text-yellow-500 mr-2">✨</span>
+                        おすすめポイント
+                      </h4>
+                      <ul className="text-sm text-gray-700 space-y-2">
                         {selectedPlan.highlights.map((highlight, index) => (
                           <li key={index} className="flex items-start space-x-2">
-                            <span className="text-purple-500">•</span>
-                            <span>{highlight}</span>
+                            <span className="text-yellow-500 mt-1">•</span>
+                            <div className="flex-1">
+                              {safeToString(highlight).includes('http') ? (
+                                <div>
+                                  {safeToString(highlight).split('http').map((part, idx) => (
+                                    idx === 0 ? part : (
+                                      <span key={idx}>
+                                        <a 
+                                          href={`http${part.split(' ')[0]}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-blue-500 hover:text-blue-700 underline"
+                                        >
+                                          http{part.split(' ')[0]}
+                                        </a>
+                                        {part.substring(part.indexOf(' '))}
+                                      </span>
+                                    )
+                                  ))}
+                                </div>
+                              ) : (
+                                <span>{safeToString(highlight)}</span>
+                              )}
+                            </div>
                           </li>
                         ))}
                       </ul>
@@ -315,13 +404,16 @@ export default function AIPlanMaker({ isOpen, onClose, onPlanSelect }: AIPlanMak
                   )}
 
                   {selectedPlan.notes && Array.isArray(selectedPlan.notes) && selectedPlan.notes.length > 0 && (
-                    <div className="mb-4">
-                      <h4 className="text-sm font-medium text-gray-800 mb-2">📝 注意事項</h4>
-                      <ul className="text-sm text-gray-700 space-y-1">
+                    <div className="mb-4 p-3 bg-orange-50 rounded-lg border border-orange-100">
+                      <h4 className="text-sm font-medium text-gray-800 mb-2 flex items-center">
+                        <span className="text-orange-500 mr-2">📝</span>
+                        注意事項
+                      </h4>
+                      <ul className="text-sm text-gray-700 space-y-2">
                         {selectedPlan.notes.map((note, index) => (
                           <li key={index} className="flex items-start space-x-2">
-                            <span className="text-orange-500">•</span>
-                            <span>{note}</span>
+                            <span className="text-orange-500 mt-1">•</span>
+                            <span className="flex-1">{safeToString(note)}</span>
                           </li>
                         ))}
                       </ul>
